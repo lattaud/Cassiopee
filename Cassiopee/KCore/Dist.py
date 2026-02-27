@@ -244,7 +244,8 @@ def checkNumpy():
 #=============================================================================
 def getInstallPath(prefix, type=0):
     import site
-    a = site.getsitepackages()[0].split('/')[-4:]
+    a = site.getsitepackages()[0].split('\\')[-4:]
+    print(a)
     if type == 0:
         if a[0] != 'local':
             installPath = os.path.join(prefix, *a[1:4])  # 'prefix/lib/python3.12/site-packages'
@@ -325,13 +326,13 @@ def writeInstallPath():
     p.write('installPath = \'%s\'\n'%installPath)
 
     import site
-    a = site.getsitepackages()[0].split('/')[-4:]
+    a = site.getsitepackages()[0].split('\\')[-4:]
     if a[0] != 'local': libPath = '%s/%s'%(prefix, a[1])  # 'prefix/lib'
     else: libPath = '%s/%s/%s'%(prefix, a[0], a[1])  # 'prefix/local/lib'
     p.write('libPath = \'%s\'\n'%libPath)
 
     cwd = os.getcwd()
-    p.write('includePath = \'%s\'\n'%(cwd))
+    p.write(f"includePath = '{pathlib.Path(cwd).as_posix()}'\n")
     gitOrigin = getGitOrigin(cwd)
     gitBranch = getGitBranch(cwd)
     gitHash = getGitHash(cwd)[:7]
@@ -455,6 +456,7 @@ def writeSetupCfg():
     if mySystem[0] == 'mingw' and mySystem[1] == '64':
         p = open("./setup.cfg", 'w')
         p.write('[build_ext]\ncompiler=mingw32\n')
+        p.write('[project]\ndependencies=["numpy"]\n')
         p.close(); return
 
     # Unix

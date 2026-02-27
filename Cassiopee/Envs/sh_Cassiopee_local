@@ -632,8 +632,8 @@ elif [ "$MAC" = "msys2" ]; then
     export ELSAPROD=win64
     export ELSAPROD=$ELSAPROD$EXT
     # Nbre de threads
-    export OMP_NUM_THREADS=4
-    export PYTHONEXE=python3
+    # export OMP_NUM_THREADS=4
+    export PYTHONEXE=python
     export PRODMODE=1
     export PIP_DISABLE_PIP_VERSION_CHECK=1
 fi

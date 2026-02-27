@@ -79,8 +79,10 @@ do
   if test -e $mod
   then
       cd $mod
+      echo $mod
       if [ "$INSTALL_MODS" -eq 1 ]; then
-          ./install $INSTALLPATH
+          echo $PWD
+          sh ./install $INSTALLPATH
           [ $? != 0 ] && exit 1;
       fi
       if [ "$INSTALL_DOCS" -eq 1 ]; then

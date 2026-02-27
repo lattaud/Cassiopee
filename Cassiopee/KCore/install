@@ -8,6 +8,7 @@
 #    Pour une installation dans un repertoire <rep>, taper : ./install <rep>
 # Puis suivre les instructions.
 #
+echo "KCOREinstall"
 if ([ $# -eq 0 ])
 then
     if [ "$CASSIOPEE" = "" ]; then
@@ -60,9 +61,12 @@ if [ $PRODMODE -ge 0 ]; then
     fi
     [ $? != 0 ] && exit 1;
     #touch KCore/kcore.cpp
+    echo "foo"
     rm -f build/lib.*/KCore/kcore.*
     rm -f build/lib.*/KCore/kcore-*.*
     python -c "import Dist; Dist.symLinks()"
+    python -c "import numpy; print(numpy)"
+    echo $PRODMODE $INSTALLPATH
     if [ $PRODMODE -eq 0 ]; then # setup
         python setup.py install --prefix="$INSTALLPATH"
         [ $? != 0 ] && exit 1;

@@ -26,7 +26,7 @@ additionalIncludePaths = Dist.getAdditionalIncludePaths()
 additionalLibs = Dist.getAdditionalLibs()
 
 # Write setup.cfg file
-Dist.writeSetupCfg()
+# Dist.writeSetupCfg()
 
 # Test if numpy exists
 numpyVersion, numpyIncDir, numpyLibDir = Dist.checkNumpy()
@@ -64,5 +64,6 @@ setup(
     author="ONERA",
     url="https://onera.github.io/Cassiopee/",
     packages=['KCore'],
-    ext_modules=listExtensions
+    ext_modules=listExtensions,
+    requires=["numpy"]
 )

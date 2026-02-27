@@ -23,6 +23,7 @@ additionalLibs = Dist.getAdditionalLibs()
 
 # Test if numpy exists =======================================================
 (numpyVersion, numpyIncDir, numpyLibDir) = Dist.checkNumpy()
+print("here check numpy")
 
 # Setting libraryDirs and libraries ===========================================
 libraryDirs = ['..', '.', pythonLibDir]
