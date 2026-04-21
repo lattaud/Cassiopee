@@ -35,7 +35,7 @@ RUN C:\msys2\usr\bin\bash.exe -l -c "pacman -Syuu --noconfirm --ask 20"
 # ---------------------------------------------------------------------------
 # 4. Install MinGW-w64 toolchain
 # ---------------------------------------------------------------------------
-RUN C:\msys2\usr\bin\bash.exe -l -c "pacman -S --noconfirm mingw-w64-x86_64-gcc mingw-w64-x86_64-gcc-fortran mingw-w64-x86_64-tools-git mingw-w64-x86_64-make git"
+RUN C:\msys2\usr\bin\bash.exe -l -c "pacman -S --noconfirm mingw-w64-x86_64-gcc mingw-w64-x86_64-gcc-fortran mingw-w64-x86_64-tools-git mingw-w64-x86_64-make mingw-w64-x86_64-hdf5 mingw-w64-x86_64-netcdf git"
 
 # ---------------------------------------------------------------------------
 # 5. Install MSVC Python 3.8 (3.8.10 = last release with Windows installer)
@@ -91,35 +91,72 @@ RUN setx PATH "C:\msys2\mingw64\bin;C:\Python38;C:\Python38\Scripts;%PATH%" /M
 #   - call scons script directly (not python -m SCons) to avoid argv issues
 # ---------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------
-# 11. Build KCore
-# ---------------------------------------------------------------------------
+# # ---------------------------------------------------------------------------
+# # 11. Build KCore
+# # ---------------------------------------------------------------------------
+
+RUN C:\Python38\python.exe -m pip install delvewheel
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/KCore && /c/Python38/Scripts/scons install"
+COPY patch_kcore_setup.py C:/patch_kcore_setup.py
+RUN C:\Python38\python.exe C:\patch_kcore_setup.py
 
-# ---------------------------------------------------------------------------
-# 12. Build remaining modules in dependency order
-# ---------------------------------------------------------------------------
-RUN C:\msys2\usr\bin\bash.exe -l -c "find /c/cassiopee/Cassiopee/KCore -name 'zone_t.hxx' 2>/dev/null; find /c/cassiopee/Cassiopee/KCore -name 'zone_t*' 2>/dev/null | head -10"
-RUN C:\msys2\usr\bin\bash.exe -l -c "ls /c/cassiopee/Cassiopee/KCore/Nuga/include/ | head -20"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/KCore && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+# # ---------------------------------------------------------------------------
+# # 12. Build remaining modules in dependency order
+# # ---------------------------------------------------------------------------
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Converter && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Converter && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Geom && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Geom && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Transform && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Transform && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Generator && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Generator && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Post && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Post && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Initiator && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Initiator && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Connector && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Connector && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Dist2Walls && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Dist2Walls && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Distributor2 && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Distributor2 && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/RigidMotion && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/RigidMotion && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Compressor && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Compressor && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
 RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Intersector && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Intersector && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Modeler && /c/Python38/Scripts/scons install"
+RUN C:\msys2\usr\bin\bash.exe -l -c "export MACHINE=win64 && export ELSAPROD=win64 && export CASSIOPEE=/c/cassiopee/Cassiopee && export PYTHONPATH=/c/cassiopee/Cassiopee && export PATH=/mingw64/bin:/c/Python38:/c/Python38/Scripts:$PATH && cd /c/cassiopee/Cassiopee/Modeler && /c/Python38/python.exe -m pip wheel --no-build-isolation . -w /c/dist"
+
 
 # ---------------------------------------------------------------------------
+# 13. Repair toutes les wheels (bundle les DLLs MinGW)
+# ---------------------------------------------------------------------------
+RUN C:\Python38\python.exe -m pip install delvewheel
+RUN C:\Python38\python.exe -c "import os, subprocess, glob; [subprocess.run(['C:\\Python38\\python.exe', '-m', 'delvewheel', 'repair', '--add-path', 'C:\\msys2\\mingw64\\bin', '-w', 'C:\\dist\\repaired', whl], check=True) for whl in glob.glob('C:\\dist\\*.whl')]"
+
+
+
 # 13. Final smoke test
 # ---------------------------------------------------------------------------
 RUN C:\msys2\usr\bin\bash.exe -l -c "export PYTHONPATH=/c/cassiopee/Cassiopee && /c/Python38/python.exe -c 'import KCore; import Converter; import Generator; import Geom; import Transform; import Post; print(\"All modules OK\")'"
-
+RUN C:\msys2\usr\bin\bash.exe -l -c "export PYTHONPATH=/c/cassiopee/Cassiopee && /c/Python38/python.exe -c 'import KCore; import Converter; import Geom; import Transform; import Generator; import Post; import Initiator; import Connector; import Dist2Walls; import Distributor2; import RigidMotion; import Compressor; import Intersector; import Modeler; import Roms; print(\"All modules OK\")'"
 WORKDIR C:/build
 
-ENTRYPOINT ["C:\\msys2\\usr\\bin\\bash.exe", "-l", "-c"]
-CMD ["export PATH=/mingw64/bin:$PATH && exec bash"]
+# ENTRYPOINT ["C:\\msys2\\usr\\bin\\bash.exe", "-l", "-c"]
+# CMD ["export PATH=/mingw64/bin:$PATH && exec bash"]
